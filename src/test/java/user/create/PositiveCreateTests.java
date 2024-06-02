@@ -1,43 +1,34 @@
 package user.create;
+
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
+import io.restassured.response.ValidatableResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import user.User;
-
-import java.net.HttpURLConnection;
-
-import static io.restassured.RestAssured.*;
-import static org.junit.Assert.assertTrue;
-
+import user.UserMethod;
 public class PositiveCreateTests {
-
-    public static final String USER_PATH = "/api/auth/register";
-
+    private final UserMethod check = new UserMethod();
+    private String accessToken;
     @Before
     public void setUp() {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
     }
-
+    @After
+    public void deleteUser() {
+        if (accessToken != null) {
+           ValidatableResponse response = check.userDelete(accessToken);
+            check.deleteSuccesfully(response);
+        }
+    }
     @Test
     @DisplayName("Позитивный тест: создание уникального пользователя")
     public void createUser() {
         User user = User.createdUser();
-        boolean created =
-                given().log().all()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(user)
-                        .when()
-                        .post(USER_PATH)
-                        .then().log().all()
-                        .assertThat()
-                        .statusCode(HttpURLConnection.HTTP_OK)
-                        .extract()
-                        .path("success");
-
-        assertTrue(created);
+        ValidatableResponse createResponse = check.userRegistration(user);
+        var response = check.successfulCreated(createResponse);
+        accessToken = check.extractToken(response);
 
     }
-
 }

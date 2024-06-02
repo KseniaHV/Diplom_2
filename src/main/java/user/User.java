@@ -1,21 +1,29 @@
 package user;
 
-public class UserData {
+public class User {
     private String email;
     private String password;
     private String name;
-
-    public UserData(){
+    public User(){
 
     }
-    public UserData(String email, String password, String name) {
+    public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
         this.name = name;
     }
-    public static UserData createdUser() {
-        UserData userData = new UserData("tufa-pufa@yandex.ru", "password004", "Tufan");
-        return userData;
+    public static User createdUser() {
+        User user = new User("tufa-pufa92@yandex.ru", "password92", "Tufan");
+        return user;
+    }
+
+    public static User noRequiredField() {
+        User withoutName = new User("tufa-pufa92@yandex.ru", "password92", null);
+        return withoutName;
+    }
+    public static User updatedDada() {
+        User updateUser = new User("Max100500@yandex.ru", "pass777", "Max");
+        return updateUser;
     }
 
     public String getEmail() {

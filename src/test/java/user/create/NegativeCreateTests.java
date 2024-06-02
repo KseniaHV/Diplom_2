@@ -2,60 +2,47 @@ package user.create;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
+import io.restassured.response.ValidatableResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import user.User;
-import java.net.HttpURLConnection;
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.*;
+import user.UserMethod;
 public class NegativeCreateTests {
-    public static final String USER_PATH = "/api/auth/register";
+    private final UserMethod check = new UserMethod();
+    private String accessToken;
     @Before
     public void setUp() {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
+    }
+    @After
+    public void deleteUser() {
+        if (accessToken != null) {
+            ValidatableResponse response = check.userDelete(accessToken);
+            check.deleteSuccesfully(response);
+        }
     }
     @Test
     @DisplayName("Негативный тест: создание пользователя, который уже зарегистрирован")
     public void testDuplicateUser() {
         User user = User.createdUser();
+       ValidatableResponse createResponse = check.userRegistration(user);
+        var response = check.successfulCreated(createResponse);
 
-        given().log().all()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(USER_PATH)
-                .then().log().all()
-                .assertThat()
-                .statusCode(HttpURLConnection.HTTP_OK);
-
-        given().log().all()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(USER_PATH)
-                .then().log().all()
-                .assertThat()
-                .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
-                .body("message", equalTo("User already exists"));
+       ValidatableResponse duplicateResponse = check.userRegistration(user);
+        check.creationError(duplicateResponse);
+        
+        accessToken = check.extractToken(response);
     }
     @Test
     @DisplayName("Негативный тест: создание пользователя без одного обязательного поля.")
     public void testMissingFields() {
         User withoutName = User.noRequiredField();
 
-        given().log().all()
-                .header("Content-type", "application/json")
-                .and()
-                .body(withoutName)
-                .when()
-                .post(USER_PATH)
-                .then().log().all()
-                .assertThat()
-                .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
-                .body("message", equalTo("Email, password and name are required fields"));
+      ValidatableResponse errorResponse = check.userRegistration(withoutName);
+        check.withoutName(errorResponse);
 
     }
+
 }
 
