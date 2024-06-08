@@ -2,9 +2,7 @@ package order.get;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
-import order.Ingredient;
 import order.OrderMethod;
 import org.junit.After;
 import org.junit.Before;
@@ -12,18 +10,11 @@ import org.junit.Test;
 import user.User;
 import user.UserLogin;
 import user.UserMethod;
-
-import java.net.HttpURLConnection;
 import java.util.List;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-
 public class PositiveGetOrderTests {
     private final UserMethod check = new UserMethod();
     private final OrderMethod bill = new OrderMethod();
     private String accessToken;
-    private ValidatableResponse validatableResponse;
 
     @Before
     public void setUp() {
